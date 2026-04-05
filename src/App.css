@@ -1,0 +1,80 @@
+.app-shell {
+    width: min(860px, 100%);
+    margin: 0 auto;
+    padding: 48px 20px;
+    box-sizing: border-box;
+}
+
+.card {
+    text-align: left;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+}
+
+.subtitle {
+    margin-bottom: 24px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.file-input {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    width: fit-content;
+    border-radius: 8px;
+    background: var(--accent-bg);
+    border: 1px solid var(--accent-border);
+    color: var(--text-h);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.file-input input {
+    display: none;
+}
+
+.file-name {
+    font-size: 14px;
+}
+
+button {
+    width: fit-content;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    padding: 10px 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.error {
+    margin-top: 16px;
+    color: #c9184a;
+    font-weight: 600;
+}
+
+.summary {
+    margin-top: 24px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+}
+
+.summary pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font: 15px/1.6 var(--sans);
+    margin: 0;
+}
