@@ -32,7 +32,7 @@ function App() {
             const formData = new FormData();
             formData.append('document', file);
 
-            const response = await fetch('/api/summarize', {
+            const response = await fetch('/api/notes', {
                 method: 'POST',
                 body: formData,
             });

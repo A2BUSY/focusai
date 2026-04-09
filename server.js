@@ -117,8 +117,59 @@ app.post('/api/summarize', upload.single('document'), async (req, res) => {
       error: error instanceof Error ? error.message : 'Failed to generate summary.',
     })
   }
-})
+});
+
+app.post('/api/notes', upload.single('document'), async (req, res) => {
+  // Check if the OpenAI API key is set
+  if (!openaiApiKey) {
+    return res.status(500).json({
+      error: 'Missing OPENAI_API_KEY in environment variables.',
+    })
+  }
+
+  // Validate the uploaded file
+  const validationError = validateUpload(req.file)
+  if (validationError) {
+    return res.status(400).json({ error: validationError })
+  }
+
+  try {
+    const rawText = (await extractTextFromFile(req.file)).trim()
+
+    if (!rawText) {
+      return res.status(400).json({
+        error: 'The file is empty or text could not be extracted.',
+      })
+    }
+
+    const openai = new OpenAI({ apiKey: openaiApiKey })
+
+    const completion = await openai.responses.create({
+      model: 'gpt-4.1-mini',
+      input: [
+        {
+          role: 'system',
+          content:
+            'You create concise notes from uploaded documents. Focus on the most important information and ideas and organize them in a logical and easy to follow structure.',
+        },
+        {
+          role: 'user',
+          content: `Please create notes from the following document:\n\n${rawText}`,
+        },
+      ],
+    })
+
+    return res.json({
+      summary: completion.output_text,
+      filename: req.file.originalname,
+    })
+  } catch (error) {
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to generate notes.',
+    })
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`)
-})
+});
