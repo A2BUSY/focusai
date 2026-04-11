@@ -72,9 +72,21 @@ button:disabled {
     padding-top: 20px;
 }
 
-.summary pre {
+.summary pre,
+.notes pre {
     white-space: pre-wrap;
     word-break: break-word;
     font: 15px/1.6 var(--sans);
     margin: 0;
+}
+
+.notes {
+    margin-top: 24px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+}
+
+.button-container {
+    display: flex;
+    gap: 12px;
 }

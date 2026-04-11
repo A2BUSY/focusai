@@ -4,8 +4,9 @@ import './App.css';
 function App() {
     const [file, setFile] = useState(null);
     const [summary, setSummary] = useState('');
+    const [notes, setNotes] = useState('');
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(null);
 
     const fileLabel = useMemo(() => {
         if (!file) {
@@ -16,23 +17,20 @@ function App() {
         }
     }, [file]);
 
-    async function handleSubmit(event) {
-        // Prevent the default form submission behavior
-        event.preventDefault();
+    async function requestDocument(endpoint, { onSuccess, fallbackError }) {
         if (!file) {
             setError('Please choose a document first.');
             return;
         }
 
-        setLoading(true);
+        setLoading(endpoint);
         setError('');
-        setSummary('');
 
         try {
             const formData = new FormData();
             formData.append('document', file);
 
-            const response = await fetch('/api/notes', {
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 body: formData,
             });
@@ -45,15 +43,32 @@ function App() {
                 throw new Error(response.ok ? 'Server returned invalid JSON.' : `Request failed (${response.status}).`);
             }
             if (!response.ok) {
-                throw new Error(data.error || 'Unable to generate summary.');
+                throw new Error(data.error || fallbackError);
             }
 
-            setSummary(data.summary);
+            onSuccess(data);
         } catch (requestError) {
-            setError(requestError instanceof Error ? requestError.message : 'Unable to generate summary.');
+            setError(requestError instanceof Error ? requestError.message : fallbackError);
         } finally {
-            setLoading(false);
+            setLoading(null);
         }
+    }
+
+    async function handleGenerateSummary(event) {
+        event.preventDefault();
+        setSummary('');
+        await requestDocument('/api/summarize', {
+            onSuccess: (data) => setSummary(data.summary),
+            fallbackError: 'Unable to generate summary.',
+        });
+    }
+
+    async function handleGenerateNotes() {
+        setNotes('');
+        await requestDocument('/api/notes', {
+            onSuccess: (data) => setNotes(data.summary),
+            fallbackError: 'Unable to generate notes.',
+        });
     }
 
     return (
@@ -65,7 +80,7 @@ function App() {
                     generate a summary using AI.
                 </p>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleGenerateSummary}>
                     <label htmlFor='document' className='file-input'>
                         Choose file
                         <input
@@ -75,14 +90,21 @@ function App() {
                             onChange={(event) => {
                                 setFile(event.target.files?.[0] || null);
                                 setSummary('');
+                                setNotes('');
                                 setError('');
                             }}
                         />
                     </label>
                     <p className='file-name'>{fileLabel}</p>
-                    <button type='submit' disabled={loading}>
-                        {loading ? 'Generating summary...' : 'Generate Summary'}
-                    </button>
+                    <div className='button-container'>
+                        <button type='submit' disabled={loading !== null}>
+                            {loading === '/api/summarize' ? 'Generating summary...' : 'Generate Summary'}
+                        </button>
+                        {/* Button type is button to avoid form submission */}
+                        <button type='button' disabled={loading !== null} onClick={() => void handleGenerateNotes()}>
+                            {loading === '/api/notes' ? 'Generating notes...' : 'Generate Notes'}
+                        </button>
+                    </div>
                 </form>
 
                 {error && <p className='error'>{error}</p>}
@@ -91,6 +113,13 @@ function App() {
                     <div className='summary'>
                         <h2>Summary</h2>
                         <pre>{summary}</pre>
+                    </div>
+                )}
+
+                {notes && (
+                    <div className='notes'>
+                        <h2>Notes</h2>
+                        <pre>{notes}</pre>
                     </div>
                 )}
             </section>
