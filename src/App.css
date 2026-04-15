@@ -1,5 +1,5 @@
 .app-shell {
-    width: min(860px, 100%);
+    width: min(960px, 100%);
     margin: 0 auto;
     padding: 48px 20px;
     box-sizing: border-box;
@@ -89,4 +89,9 @@ button:disabled {
 .button-container {
     display: flex;
     gap: 12px;
+}
+
+.output-container {
+    display: flex;
+    gap: 24px;
 }

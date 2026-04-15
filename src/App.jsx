@@ -87,6 +87,7 @@ function App() {
                             id='document'
                             type='file'
                             accept='.pdf,.txt,.doc,.docx'
+                            disabled={loading !== null}
                             onChange={(event) => {
                                 setFile(event.target.files?.[0] || null);
                                 setSummary('');
@@ -108,20 +109,21 @@ function App() {
                 </form>
 
                 {error && <p className='error'>{error}</p>}
+                <div className='output-container'>
+                    {summary && (
+                        <div className='summary'>
+                            <h2>Summary</h2>
+                            <pre>{summary}</pre>
+                        </div>
+                    )}
 
-                {summary && (
-                    <div className='summary'>
-                        <h2>Summary</h2>
-                        <pre>{summary}</pre>
-                    </div>
-                )}
-
-                {notes && (
-                    <div className='notes'>
-                        <h2>Notes</h2>
-                        <pre>{notes}</pre>
-                    </div>
-                )}
+                    {notes && (
+                        <div className='notes'>
+                            <h2>Notes</h2>
+                            <pre>{notes}</pre>
+                        </div>
+                    )}
+                </div>
             </section>
         </main>
     );
