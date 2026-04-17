@@ -1,8 +1,10 @@
 .app-shell {
-    width: min(960px, 100%);
+    width: 100%;
     margin: 0 auto;
     padding: 48px 20px;
     box-sizing: border-box;
+    display: flex;
+    gap: 16px;
 }
 
 .card {
@@ -94,4 +96,48 @@ button:disabled {
 .output-container {
     display: flex;
     gap: 24px;
+}
+
+.chat-section {
+    padding: 16px;
+    flex-grow: 1;
+    gap: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-form {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.chat-form input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font: 15px/1.4 var(--sans);
+    background: transparent;
+    width: 100%;
+}
+
+.chat-messages {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chat-message {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font: 15px/1.5 var(--sans);
+}
+
+.chat-message.user {
+    background: var(--accent-bg);
 }

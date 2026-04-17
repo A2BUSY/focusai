@@ -5,6 +5,8 @@ function App() {
     const [file, setFile] = useState(null);
     const [summary, setSummary] = useState('');
     const [notes, setNotes] = useState('');
+    const [question, setQuestion] = useState('');
+    const [chatMessages, setChatMessages] = useState([]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(null);
 
@@ -71,6 +73,56 @@ function App() {
         });
     }
 
+    async function handleAskQuestion(event) {
+        event.preventDefault();
+
+        if (!file) {
+            setError('Please upload a document first.');
+            return;
+        }
+
+        const trimmedQuestion = question.trim();
+        if (!trimmedQuestion) {
+            setError('Please enter a question.');
+            return;
+        }
+
+        setLoading('/api/chat');
+        setError('');
+
+        const userMessage = { role: 'user', content: trimmedQuestion };
+        // Update chat history
+        setChatMessages((previous) => [...previous, userMessage]);
+        setQuestion('');
+
+        try {
+            const formData = new FormData();
+            formData.append('document', file);
+            formData.append('question', trimmedQuestion);
+
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const res = await response.text();
+            const data = JSON.parse(res);
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Unable to answer question.');
+            }
+
+            const assistantMessage = { role: 'assistant', content: data.answer || 'No answer generated.' };
+            // Add response from ai to chat history
+            setChatMessages((previous) => [...previous, assistantMessage]);
+        } catch (requestError) {
+            setChatMessages((previous) => previous.slice(0, -1));
+            setError(requestError instanceof Error ? requestError.message : 'Unable to answer question.');
+        } finally {
+            setLoading(null);
+        }
+    }
+
     return (
         <main className='app-shell'>
             <section className='card'>
@@ -92,6 +144,8 @@ function App() {
                                 setFile(event.target.files?.[0] || null);
                                 setSummary('');
                                 setNotes('');
+                                setQuestion('');
+                                setChatMessages([]);
                                 setError('');
                             }}
                         />
@@ -123,6 +177,29 @@ function App() {
                             <pre>{notes}</pre>
                         </div>
                     )}
+                </div>
+            </section>
+            <section className='chat-section'>
+                <h2>Ask About the Document</h2>
+                <form onSubmit={handleAskQuestion} className='chat-form'>
+                    <input
+                        type='text'
+                        placeholder='Ask a question about your document...'
+                        value={question}
+                        onChange={(event) => setQuestion(event.target.value)}
+                        disabled={loading !== null}
+                    />
+                    <button type='submit' disabled={loading !== null}>
+                        {loading === '/api/chat' ? 'Asking...' : 'Ask'}
+                    </button>
+                </form>
+
+                <div className='chat-messages'>
+                    {chatMessages.map((message, index) => (
+                        <div key={`${message.role}-${index}`} className={`chat-message ${message.role}`}>
+                            <strong>{message.role === 'user' ? 'You' : 'FocusAI'}:</strong> {message.content}
+                        </div>
+                    ))}
                 </div>
             </section>
         </main>

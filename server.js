@@ -170,6 +170,59 @@ app.post('/api/notes', upload.single('document'), async (req, res) => {
   }
 });
 
+app.post('/api/chat', upload.single('document'), async (req, res) => {
+  if (!openaiApiKey) {
+    return res.status(500).json({
+      error: 'Missing OPENAI_API_KEY in environment variables.',
+    })
+  }
+
+  const validationError = validateUpload(req.file)
+  if (validationError) {
+    return res.status(400).json({ error: validationError })
+  }
+
+  const question = req.body.question.trim();
+  if (!question) {
+    return res.status(400).json({ error: 'Please provide a question.' })
+  }
+
+  try {
+    const fileContent = (await extractTextFromFile(req.file)).trim()
+
+    if (!fileContent) {
+      return res.status(400).json({
+        error: 'The file is empty or text could not be extracted.',
+      })
+    }
+
+    const openai = new OpenAI({ apiKey: openaiApiKey })
+
+    const completion = await openai.responses.create({
+      model: 'gpt-4.1-mini',
+      input: [
+        {
+          role: 'system',
+          content:
+            'You answer questions about an uploaded document. Use only the provided document content. If the answer is not in the document, clearly say so.',
+        },
+        {
+          role: 'user',
+          content: `Document:\n${fileContent}\n\nQuestion:\n${question}`,
+        },
+      ],
+    })
+
+    return res.json({
+      answer: completion.output_text,
+    })
+  } catch (error) {
+    return res.status(500).json({
+      error: error.message || 'Failed to answer question.',
+    })
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`)
 });
