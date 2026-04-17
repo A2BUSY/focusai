@@ -99,7 +99,7 @@ app.post('/api/summarize', upload.single('document'), async (req, res) => {
         {
           role: 'system',
           content:
-            'You summarize uploaded documents. Be accurate, concise, and organize output with short headings and bullet points.',
+            'You summarize uploaded documents. Simply give an overall summary that contains maximum two paragraphs.',
         },
         {
           role: 'user',

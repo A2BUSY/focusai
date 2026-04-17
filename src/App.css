@@ -12,6 +12,7 @@
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 28px;
+    width: 65%;
 }
 
 .subtitle {
@@ -104,6 +105,7 @@ button:disabled {
     gap: 12px;
     display: flex;
     flex-direction: column;
+    width: 35%;
 }
 
 .chat-form {
