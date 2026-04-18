@@ -182,7 +182,7 @@ app.post('/api/chat', upload.single('document'), async (req, res) => {
     return res.status(400).json({ error: validationError })
   }
 
-  const question = req.body.question.trim();
+  const question = typeof req.body?.question === 'string' ? req.body.question.trim() : ''
   if (!question) {
     return res.status(400).json({ error: 'Please provide a question.' })
   }
@@ -215,14 +215,21 @@ app.post('/api/chat', upload.single('document'), async (req, res) => {
 
     return res.json({
       answer: completion.output_text,
+      // For testing purposes
+      filename: req.file.originalname,
     })
   } catch (error) {
     return res.status(500).json({
-      error: error.message || 'Failed to answer question.',
+      error: error instanceof Error ? error.message : 'Failed to answer question.',
     })
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`)
-});
+// Only start the server when tests aren't running
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`)
+  })
+}
+
+export { app }
