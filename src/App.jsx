@@ -10,6 +10,8 @@ function App() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(null);
 
+    // A function for generating the file label
+    // Wrapped in use memo to avoid unnecessary re-calculations from state updates
     const fileLabel = useMemo(() => {
         if (!file) {
             return 'No file selected';
@@ -67,7 +69,7 @@ function App() {
 
     async function handleGenerateNotes() {
         setNotes('');
-        await requestDocument('/api/notes', {
+        await requestDocument('/api/note', {
             onSuccess: (data) => setNotes(data.summary),
             fallbackError: 'Unable to generate notes.',
         });
@@ -123,6 +125,16 @@ function App() {
         }
     }
 
+    function handleFileUpload(event) {
+        setFile(event.target.files?.[0] || null);
+
+        // Since the file has changed reset all generated summary, notes and conversation
+        setSummary('');
+        setNotes('');
+        setQuestion('');
+        setChatMessages([]);
+        setError('');
+    }
     return (
         <main className='app-shell'>
             <section className='card'>
@@ -140,14 +152,7 @@ function App() {
                             type='file'
                             accept='.pdf,.txt,.doc,.docx'
                             disabled={loading !== null}
-                            onChange={(event) => {
-                                setFile(event.target.files?.[0] || null);
-                                setSummary('');
-                                setNotes('');
-                                setQuestion('');
-                                setChatMessages([]);
-                                setError('');
-                            }}
+                            onChange={(event) => handleFileUpload(event)}
                         />
                     </label>
                     <p className='file-name'>{fileLabel}</p>
