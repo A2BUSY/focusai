@@ -17,6 +17,7 @@ const openaiApiKey = process.env.OPENAI_API_KEY
 app.use(cors())
 
 // Multer is middleware used to handle file uploads
+// This allows us to store files in memory since a database is not being used
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {

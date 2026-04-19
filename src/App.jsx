@@ -69,7 +69,7 @@ function App() {
 
     async function handleGenerateNotes() {
         setNotes('');
-        await requestDocument('/api/note', {
+        await requestDocument('/api/notes', {
             onSuccess: (data) => setNotes(data.summary),
             fallbackError: 'Unable to generate notes.',
         });
